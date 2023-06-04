@@ -1,0 +1,49 @@
+{% extends 'board/base.html' %}
+
+{% block content %}
+<h1>Мои отклики</h1>
+
+{% for announcement, comments in comments_dict.items %}
+<li>
+    <div class="article-panel">
+        <p class="first">Категория: {{announcement.get_category_display}}</p>
+        <p class="last">Дата: {{announcement.time_create|date:"d-m-Y H:i:s"}}</p>
+    </div>
+    <h2>{{ announcement.title}}</h2>
+    {% autoescape on %}
+    {{ann.text|linebreaks|truncatewords:10}}
+    {% endautoescape %}
+    <ul>
+        {% for comment in comments %}
+        <p class="first">Автор: {{comment.author}}</p>
+        {{ comment.text }}
+        <li><a href="{% url 'send_email_to_owner' comment.pk %}">Принять отклик</a> |
+            <a href="{{ comment.get_delete_url }}"
+               onclick="event.preventDefault(); if (confirm('Вы уверены, что хотите удалить комментарий?')) { document.getElementById('delete-form-{{ comment.pk }}').submit(); }">
+                Удалить комментарий
+            </a>
+            <form id="delete-form-{{ comment.pk }}" method="post" action="{{ comment.get_delete_url }}">
+                {% csrf_token %}
+                <input type="hidden" name="comment_pk" value="{{ comment.pk }}">
+            </form>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+    {% endblock %}
+    {% if page_obj.has_other_pages %}
+    <nav class="list-pages">
+        <ul>
+            {% for p in paginator.page_range %}
+            {% if page_obj.number == p %}
+            <li class="page-num page-num-selected">{{ p }}</li>
+            {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+            <li class="page-num">
+                <a href="?page={{ p }}">{{ p }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}

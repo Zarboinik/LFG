@@ -1,0 +1,31 @@
+{% extends 'board/base.html' %}
+
+{% block content %}
+    <h1>{{ announcement.title }}</h1>
+    {% if announcement.content %}
+      <p><img class="img-article-left" src="{{announcement.content.url}}"></p>
+    {% endif %}
+
+    {{ announcement.text|linebreaks }}
+
+<!-- Блок для отображения комментариев -->
+<h2>Комментарии:</h2>
+{% for comment in comments %}
+    <div class="comment">
+        <p>Автор: {{ comment.author }}</p>
+        <p>Время создания: {{ comment.time_create }}</p>
+        <p>{{ comment.text }}</p>
+    </div>
+{% empty %}
+    <p>Пока нет комментариев.</p>
+{% endfor %}
+
+<!-- Форма для добавления нового комментария -->
+<h2>Добавить комментарий</h2>
+<form method="post" action="{% url 'add_comment' %}">
+    {% csrf_token %}
+    <input type="hidden" name="announcement_id" value="{{ announcement.id }}">
+    <textarea name="text"></textarea>
+    <button type="submit">Отправить</button>
+</form>
+{% endblock %}

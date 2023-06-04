@@ -1,0 +1,28 @@
+{% extends 'board/base.html'%}
+
+{% block content %}
+{% if announcements %}
+    <ul class="list-articles">
+        {% for ann in announcements %}
+            <li><div class="article-panel">
+	            <p class="first">Категория: {{ann.get_category_display}}</p>
+	            <p class="last">Дата: {{ann.time_create|date:"d-m-Y H:i:s"}}</p>
+                </div>
+                {% if ann.content%}
+                    <p><img class="img-article-left thumb" src="{{ann.content.url}}"></p>
+                {% endif %}
+                <h2>{{ ann.title}}</h2>
+        {% autoescape on %}
+        {{ann.text|linebreaks|truncatewords:10}}
+	    {% endautoescape %}
+            <div class="clear"></div>
+			<p class="link-read-post"><a href="{{ ann.get_absolute_url }}">Откликнуться</a></p>
+			</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <ul class="list-articles">
+        <p>нет объявлений.</p>
+    </ul>
+{% endif %}
+{% endblock %}
