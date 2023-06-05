@@ -42,11 +42,11 @@ class UserBoard(LoginRequiredMixin, MenuTitleMixin, ListView):
         return dict(list(context.items()) + list(c_def.items()))
 
 
-class UserResponses(LoginRequiredMixin, ListView):
+class UserResponses(MenuTitleMixin, LoginRequiredMixin, ListView):
     model = Announcement
     template_name = 'board/user_responses.html'
     context_object_name = 'comments_dict'
-    paginate_by = 3
+    paginate_by = 2
 
     def get_queryset(self):
         user = self.request.user
@@ -61,7 +61,8 @@ class UserResponses(LoginRequiredMixin, ListView):
         comments_dict = {announcement: announcement.comments.all() for announcement in announcements}
 
         context['comments_dict'] = comments_dict
-        return context
+        c_def = self.get_user_context(title='Доска Объявлений')
+        return dict(list(c_def.items()) + list(context.items()))
 
 
 class ResponseDelete(View):
@@ -74,12 +75,12 @@ class ResponseDelete(View):
 def send_email_to_owner(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
     owner_email = comment.announcement.author.email
-    subject = 'Новое сообщение откликнулись'
+    subject = 'Новое сообщение - откликнулись'
     message = 'Здравствуйте,\n\nУ вас есть отклик на ваше сообщение:\n\n{}'.format(comment.text)
     sender_email = '{{your_email@example.com}}'
 
     send_mail(subject, message, sender_email, [owner_email])
-    return HttpResponse('Email отправлен владельцу комментария')
+    return redirect('user_responses')
 
 
 def about(request):
